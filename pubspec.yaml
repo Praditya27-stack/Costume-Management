@@ -1,0 +1,29 @@
+name: wmp
+description: "A new Flutter project."
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.5
+  cupertino_icons: ^1.0.8
+  image_picker: ^0.8.7+5
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Define assets here
+  assets:
+    - lib/assets/icon/Search.svg
