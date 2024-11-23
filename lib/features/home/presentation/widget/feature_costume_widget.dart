@@ -1,11 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:wmp/features/costume_detail/presentation/page/costume_detail_page.dart';
 
 class FeatureCostumeWidget extends StatelessWidget {
   final List<Map<String, String>> costumes = [
-    {"title": "Nahida", "subtitle": "Genshin Impact", "price": "Rp400.000"},
-    {"title": "Nahida", "subtitle": "Genshin Impact", "price": "Rp400.000"},
-    {"title": "Nahida", "subtitle": "Genshin Impact", "price": "Rp400.000"},
-    {"title": "Nahida", "subtitle": "Genshin Impact", "price": "Rp400.000"},
+    {
+      "title": "Nahida",
+      "subtitle": "Genshin Impact",
+      "price": "Rp400.000",
+      "imageUrl": "https://via.placeholder.com/150"
+    },
+    {
+      "title": "Raiden Shogun",
+      "subtitle": "Genshin Impact",
+      "price": "Rp450.000",
+      "imageUrl": "https://via.placeholder.com/150"
+    },
+    {
+      "title": "Kamisato Ayaka",
+      "subtitle": "Genshin Impact",
+      "price": "Rp430.000",
+      "imageUrl": "https://via.placeholder.com/150"
+    },
+    {
+      "title": "Venti",
+      "subtitle": "Genshin Impact",
+      "price": "Rp420.000",
+      "imageUrl": "https://via.placeholder.com/150"
+    },
   ];
 
   @override
@@ -14,12 +35,11 @@ class FeatureCostumeWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section Title and View All Button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center, // Pastikan align vertikal
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
                   "Featured Costumes",
@@ -62,12 +82,15 @@ class FeatureCostumeWidget extends StatelessWidget {
                 final costume = costumes[index];
                 return GestureDetector(
                   onTap: () {
-                    // Navigate to detail page
+                    // Navigate to costume_detail_page.dart
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DetailPage(
+                        builder: (context) => CostumeDetailPage(
                           title: costume['title']!,
+                          subtitle: costume['subtitle']!,
+                          price: costume['price']!,
+                          imageUrl: costume['imageUrl']!,
                         ),
                       ),
                     );
@@ -89,11 +112,10 @@ class FeatureCostumeWidget extends StatelessWidget {
                                 top: Radius.circular(10),
                               ),
                             ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.image,
-                                color: Colors.grey,
-                                size: 40,
+                            child: Center(
+                              child: Image.network(
+                                costume['imageUrl']!,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),
@@ -141,34 +163,4 @@ class FeatureCostumeWidget extends StatelessWidget {
       ),
     );
   }
-}
-
-// Dummy Detail Page
-class DetailPage extends StatelessWidget {
-  final String title;
-
-  const DetailPage({Key? key, required this.title}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Text(
-          "Detail Page for $title",
-          style: const TextStyle(fontSize: 18),
-        ),
-      ),
-    );
-  }
-}
-
-void main() {
-  runApp( MaterialApp(
-    home: Scaffold(
-      body: FeatureCostumeWidget(),
-    ),
-  ));
 }

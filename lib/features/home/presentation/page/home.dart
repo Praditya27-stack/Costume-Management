@@ -8,42 +8,47 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(16.0), // Add padding around the content
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Header
+            // Header Selamat Datang
             const Text(
               'Welcome',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.blue,
               ),
             ),
-            const SizedBox(height: 16), // Space between header and search bar
+            const SizedBox(height: 16),
 
             // Search Bar
-            SearchInputField(),
+            SearchBarWidget(),
+            const SizedBox(height: 16),
+
+            // Featured Costumes  
             FeatureCostumeWidget(),
 
-            // Add more widgets below if needed
+            // Tambahkan widget lainnya jika diperlukan
           ],
         ),
       ),
-       floatingActionButton: FloatingActionButton(
+
+      // Floating Action Button untuk Add Costume
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddCostumePage(), // Navigasi ke AddProduct
+              builder: (context) => AddCostumePage(),
             ),
           );
         },
         backgroundColor: Colors.blue,
-        child: const Icon(Icons.add), // Ikon tombol
+        child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Posisi kanan bawah
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
