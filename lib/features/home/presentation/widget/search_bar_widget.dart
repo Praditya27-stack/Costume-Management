@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wmp/db_helper.dart';
+
 
 class SearchBarWidget extends StatefulWidget {
   @override
@@ -8,20 +10,23 @@ class SearchBarWidget extends StatefulWidget {
 class _SearchBarWidgetState extends State<SearchBarWidget> {
   final TextEditingController _searchController = TextEditingController();
   final LayerLink _layerLink = LayerLink();
-  final List<String> _allSuggestions = [
-    "Asta",
-    "Beerus",
-    "Canute",
-    "Denji",
-    "Edward Elric",
-  ];
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+  List<String> _allSuggestions = [];
   List<String> _filteredSuggestions = [];
   OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
     super.initState();
-    _filteredSuggestions = _allSuggestions;
+    _loadSuggestions();
+  }
+
+  Future<void> _loadSuggestions() async {
+    final suggestions = await _dbHelper.fetchCostumes();
+    setState(() {
+      _allSuggestions = suggestions.map((e) => e['name'] as String).toList();
+      _filteredSuggestions = _allSuggestions;
+    });
   }
 
   void _filterSuggestions(String query) {
@@ -51,10 +56,8 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
   OverlayEntry _createOverlayEntry() {
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Offset position = renderBox.localToGlobal(Offset.zero);
-    final double availableHeightBelow = MediaQuery.of(context).size.height -
-        position.dy -
-        renderBox.size.height;
-    final double popupHeight = 200; // Tinggi maksimum popup
+    final double availableHeightBelow = MediaQuery.of(context).size.height - position.dy - renderBox.size.height;
+    final double popupHeight = 200;
 
     return OverlayEntry(
       builder: (context) {
@@ -63,7 +66,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
           left: position.dx,
           top: availableHeightBelow >= popupHeight
               ? position.dy + renderBox.size.height + 5
-              : position.dy - popupHeight - 5, // Pindahkan ke atas jika ruang tidak cukup
+              : position.dy - popupHeight - 5,
           child: CompositedTransformFollower(
             link: _layerLink,
             offset: const Offset(0, 0),
@@ -71,9 +74,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
               elevation: 4,
               borderRadius: BorderRadius.circular(10),
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: popupHeight,
-                ),
+                constraints: BoxConstraints(maxHeight: popupHeight),
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: _filteredSuggestions.length,
@@ -110,7 +111,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
           }
         },
         decoration: InputDecoration(
-          hintText: "Search Your Costumer Here",
+          hintText: "Search Your Costume Here",
           prefixIcon: const Icon(Icons.search),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -126,7 +127,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
   @override
   void dispose() {
     _searchController.dispose();
-    _hideSuggestions(); // Pastikan popup ditutup saat widget dihancurkan
+    _hideSuggestions();
     super.dispose();
   }
 }

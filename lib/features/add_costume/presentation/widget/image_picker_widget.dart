@@ -2,102 +2,71 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class ImagePickerWidget extends StatefulWidget {
-  const ImagePickerWidget({Key? key, required void Function() onCameraTap, required void Function() onGalleryTap, String? imagePath}) : super(key: key);
+class ImagePickerWidget extends StatelessWidget {
+  final Function(String) onCameraTap;
+  final Function(String) onGalleryTap;
+  final String? imagePath;
 
-  @override
-  _ImagePickerWidgetState createState() => _ImagePickerWidgetState();
-}
+  const ImagePickerWidget({
+    Key? key,
+    required this.onCameraTap,
+    required this.onGalleryTap,
+    this.imagePath,
+  }) : super(key: key);
 
-class _ImagePickerWidgetState extends State<ImagePickerWidget> {
-  File? _selectedImage; // Gambar yang dipilih (null jika tidak ada gambar)
-
-  // Fungsi untuk mengambil gambar dari kamera
-  Future<void> _pickImageFromCamera() async {
+  Future<void> _pickImage(BuildContext context, ImageSource source) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.camera);
+    final XFile? pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path); // Menyimpan gambar yang dipilih
-      });
-      print("Gambar berhasil diambil: ${pickedFile.path}");
+      if (source == ImageSource.camera) {
+        onCameraTap(pickedFile.path);
+      } else {
+        onGalleryTap(pickedFile.path);
+      }
     } else {
-      _showSnackBar("Tidak ada gambar yang dipilih.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No image selected')),
+      );
     }
-  }
-
-  // Fungsi untuk mengambil gambar dari galeri
-  Future<void> _pickImageFromGallery() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path); // Menyimpan gambar yang dipilih
-      });
-      print("Gambar berhasil dipilih dari galeri: ${pickedFile.path}");
-    } else {
-      _showSnackBar("Tidak ada gambar yang dipilih.");
-    }
-  }
-
-  // Menampilkan Snackbar untuk pesan
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Menampilkan gambar yang dipilih atau teks placeholder
-        Container(
-          width: 150,
-          height: 150,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.blue, width: 2),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: _selectedImage == null
-              ? Center(
-                  child: Text(
-                    "No Image",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                )
-              : ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    _selectedImage!,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-        ),
-        const SizedBox(width: 16), // Jarak antara gambar dan tombol
-        Column(
-          children: [
-            ElevatedButton(
-              onPressed: _pickImageFromCamera,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Icon(Icons.camera_alt, color: Colors.white),
+        if (imagePath != null && File(imagePath!).existsSync())
+          Center(
+            child: Image.file(
+              File(imagePath!),
+              width: 200,
+              height: 200,
+              fit: BoxFit.cover,
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _pickImageFromGallery,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Icon(Icons.insert_drive_file, color: Colors.white),
+          )
+        else
+          Center(
+            child: Container(
+              width: 200,
+              height: 200,
+              color: Colors.grey[300],
+              child: const Icon(Icons.image, size: 100, color: Colors.grey),
+            ),
+          ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () => _pickImage(context, ImageSource.camera),
+              icon: const Icon(Icons.camera_alt),
+              label: const Text("Camera"),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => _pickImage(context, ImageSource.gallery),
+              icon: const Icon(Icons.photo),
+              label: const Text("Gallery"),
             ),
           ],
         ),

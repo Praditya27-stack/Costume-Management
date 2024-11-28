@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:wmp/features/add_costume/presentation/widget/add_costume_form_widget.dart';
 import 'package:wmp/features/add_costume/presentation/widget/image_picker_widget.dart';
@@ -12,26 +11,16 @@ class AddCostumePage extends StatefulWidget {
 class _AddCostumePageState extends State<AddCostumePage> {
   File? selectedImage;
 
-  void pickImageFromGallery() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        selectedImage = File(pickedFile.path);
-      });
-    }
+  void pickImageFromGallery(String path) {
+    setState(() {
+      selectedImage = File(path);
+    });
   }
 
-  void pickImageFromCamera() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.camera);
-
-    if (pickedFile != null) {
-      setState(() {
-        selectedImage = File(pickedFile.path);
-      });
-    }
+  void pickImageFromCamera(String path) {
+    setState(() {
+      selectedImage = File(path);
+    });
   }
 
   @override
@@ -41,26 +30,29 @@ class _AddCostumePageState extends State<AddCostumePage> {
         title: const Text(
           "Add Costume",
           style: TextStyle(
-            color: Colors.white, // Warna teks
+            color: Colors.white, // Text color
           ),
         ),
-        backgroundColor: Colors.blue, // Warna latar belakang AppBar
+        backgroundColor: Colors.blue, // AppBar background color
         iconTheme: const IconThemeData(
-          color: Colors.white, // Warna ikon back
+          color: Colors.white, // Back icon color
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            ImagePickerWidget(
-              onCameraTap: pickImageFromCamera,
-              onGalleryTap: pickImageFromGallery,
-              imagePath: selectedImage?.path,
-            ),
-            const SizedBox(height: 24),
-            AddCostumeFormWidget(),
-          ],
+      body: SingleChildScrollView( // Make the whole body scrollable
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ImagePickerWidget(
+                onCameraTap: pickImageFromCamera,
+                onGalleryTap: pickImageFromGallery,
+                imagePath: selectedImage?.path,
+              ),
+              const SizedBox(height: 24),
+              AddCostumeFormWidget(imagePath: selectedImage?.path),
+            ],
+          ),
         ),
       ),
     );
