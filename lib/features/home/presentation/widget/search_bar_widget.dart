@@ -44,7 +44,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
   void _showSuggestions() {
     if (_overlayEntry == null) {
       _overlayEntry = _createOverlayEntry();
-      Overlay.of(context)!.insert(_overlayEntry!);
+      Overlay.of(context).insert(_overlayEntry!);
     }
   }
 
