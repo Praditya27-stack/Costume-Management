@@ -38,6 +38,38 @@ class _CostumeDetailPageState extends State<CostumeDetailPage> {
     }
   }
 
+  Future<void> _deleteCostume() async {
+    await _dbHelper.deleteCostume(widget.costumeId);
+    Navigator.pop(context); // Kembali ke halaman sebelumnya setelah menghapus
+  }
+
+  void _confirmDelete() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Hapus'),
+          content: const Text('Apakah Anda yakin ingin menghapus kostum ini?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteCostume();
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_costume == null) {
@@ -56,6 +88,12 @@ class _CostumeDetailPageState extends State<CostumeDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(costume['name']),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: _confirmDelete, // Panggil konfirmasi hapus
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -70,7 +108,6 @@ class _CostumeDetailPageState extends State<CostumeDetailPage> {
               material: costume['material'],
               color: costume['color'],
               stock: costume['stock'],
-              
             ),
             CostumeDescriptionWidget(description: costume['description']),
           ],

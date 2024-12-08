@@ -42,16 +42,16 @@ class DatabaseHelper {
   }
 
   Future<Map<String, dynamic>?> getCostumeById(int id) async {
-  final db = await database;
-  final result = await db.query(
-    'costumes',
-    where: 'id = ?',
-    whereArgs: [id],
-  );
-  if (result.isNotEmpty) {
-    return result.first;
-  }
-  return null; // Return null if no data is found
+    final db = await database;
+    final result = await db.query(
+      'costumes',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null; // Return null if no data is found
   }
 
   Future<int> insertCostume(Map<String, dynamic> costume) async {
@@ -62,5 +62,15 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> fetchCostumes() async {
     final db = await database;
     return await db.query('costumes');
+  }
+
+  // Fungsi untuk menghapus kostum berdasarkan ID
+  Future<int> deleteCostume(int id) async {
+    final db = await database;
+    return await db.delete(
+      'costumes',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }
