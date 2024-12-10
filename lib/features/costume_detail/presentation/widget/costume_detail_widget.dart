@@ -44,7 +44,7 @@ class CostumeDetailWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '\$ $price',
+            '\Rp. $price',
             style: const TextStyle(
               fontSize: 20,
               color: Colors.green,

@@ -3,8 +3,15 @@ import 'package:wmp/db_helper.dart';
 
 class AddCostumeFormWidget extends StatefulWidget {
   final String? imagePath;
+  final Map<String, dynamic>? initialData; // New parameter for initial data
+  final Function(Map<String, dynamic>)? onSubmit; // Callback for form submission
 
-  const AddCostumeFormWidget({Key? key, this.imagePath}) : super(key: key);
+  const AddCostumeFormWidget({
+    Key? key,
+    this.imagePath,
+    this.initialData,
+    this.onSubmit,
+  }) : super(key: key);
 
   @override
   _AddCostumeFormWidgetState createState() => _AddCostumeFormWidgetState();
@@ -12,16 +19,27 @@ class AddCostumeFormWidget extends StatefulWidget {
 
 class _AddCostumeFormWidgetState extends State<AddCostumeFormWidget> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _costumeNameController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _sizeController = TextEditingController();
-  final TextEditingController _materialController = TextEditingController();
-  final TextEditingController _colorController = TextEditingController();
-  final TextEditingController _stockController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  late TextEditingController _costumeNameController;
+  late TextEditingController _categoryController;
+  late TextEditingController _priceController;
+  late TextEditingController _sizeController;
+  late TextEditingController _materialController;
+  late TextEditingController _colorController;
+  late TextEditingController _stockController;
+  late TextEditingController _descriptionController;
 
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+  @override
+  void initState() {
+    super.initState();
+    _costumeNameController = TextEditingController(text: widget.initialData?['name'] ?? '');
+    _categoryController = TextEditingController(text: widget.initialData?['category'] ?? '');
+    _priceController = TextEditingController(text: widget.initialData?['price']?.toString() ?? '');
+    _sizeController = TextEditingController(text: widget.initialData?['size'] ?? '');
+    _materialController = TextEditingController(text: widget.initialData?['material'] ?? '');
+    _colorController = TextEditingController(text: widget.initialData?['color'] ?? '');
+    _stockController = TextEditingController(text: widget.initialData?['stock']?.toString() ?? '');
+    _descriptionController = TextEditingController(text: widget.initialData?['description'] ?? '');
+  }
 
   @override
   void dispose() {
@@ -36,9 +54,9 @@ class _AddCostumeFormWidgetState extends State<AddCostumeFormWidget> {
     super.dispose();
   }
 
-  Future<void> _saveCostume() async {
+  void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
-      final costume = {
+      final costumeData = {
         'name': _costumeNameController.text,
         'category': _categoryController.text,
         'price': double.tryParse(_priceController.text) ?? 0.0,
@@ -50,14 +68,23 @@ class _AddCostumeFormWidgetState extends State<AddCostumeFormWidget> {
         'imagePath': widget.imagePath ?? '',
       };
 
-      await _dbHelper.insertCostume(costume);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Costume added!')),
-      );
-
-      Navigator.pop(context);
+      if (widget.onSubmit != null) {
+        widget.onSubmit!(costumeData); // Trigger the callback
+      } else {
+        _saveCostume(costumeData); // Default save behavior
+      }
     }
+  }
+
+  Future<void> _saveCostume(Map<String, dynamic> costume) async {
+    final dbHelper = DatabaseHelper();
+    await dbHelper.insertCostume(costume);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Costume added!')),
+    );
+
+    Navigator.pop(context);
   }
 
   @override
@@ -73,14 +100,14 @@ class _AddCostumeFormWidgetState extends State<AddCostumeFormWidget> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _saveCostume,
+                onPressed: _handleSubmit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text(
-                  "Add Costume",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                child: Text(
+                  widget.onSubmit != null ? "Save Changes" : "Add Costume",
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
             ),
@@ -103,7 +130,8 @@ class _AddCostumeFormWidgetState extends State<AddCostumeFormWidget> {
     ];
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, bool isRequired, {TextInputType? keyboardType, int maxLines = 1}) {
+  Widget _buildTextField(String label, TextEditingController controller, bool isRequired,
+      {TextInputType? keyboardType, int maxLines = 1}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(

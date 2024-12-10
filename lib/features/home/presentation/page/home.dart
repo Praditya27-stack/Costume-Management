@@ -5,7 +5,14 @@ import 'package:wmp/features/home/presentation/widget/feature_costume_widget.dar
 import 'package:wmp/features/home/presentation/widget/search_bar_widget.dart';
 import 'package:wmp/shared/theme/theme_notifier.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String _searchQuery = '';
+
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
@@ -13,13 +20,13 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // Konten utama
+          // Main content
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Selamat Datang
+                // Welcome Header
                 const Text(
                   'Welcome',
                   style: TextStyle(
@@ -31,22 +38,28 @@ class HomePage extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // Search Bar
-                SearchBarWidget(),
-                const SizedBox(height: 16),
-
-                // Featured Costumes  
-                FeatureCostumeWidget(),
+                SearchBarWidget(
+                  onSearchChanged: (query) {
+                    setState(() {
+                      _searchQuery = query;
+                    });
+                  },
+                ),
+                const SizedBox(height: 32),
+              
+                // Featured Costumes
+                FeatureCostumeWidget(searchQuery: _searchQuery),
               ],
             ),
           ),
 
-          // Tombol Ubah Tema di bawah kiri
+          // Theme toggle button at bottom-left
           Positioned(
             bottom: 16,
             left: 16,
             child: FloatingActionButton(
               onPressed: () {
-                themeNotifier.toggleTheme(); // Ubah tema
+                themeNotifier.toggleTheme(); // Toggle theme
               },
               backgroundColor: Colors.grey,
               child: Icon(
@@ -54,13 +67,13 @@ class HomePage extends StatelessWidget {
                     ? Icons.dark_mode
                     : Icons.light_mode,
               ),
-              mini: true, // Membuat tombol lebih kecil
+              mini: true, // Smaller button
             ),
           ),
         ],
       ),
 
-      // Floating Action Button untuk Add Costume tetap di kanan bawah
+      // Floating action button to add a costume
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(

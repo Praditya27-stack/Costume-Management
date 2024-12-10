@@ -1,5 +1,5 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -64,11 +64,21 @@ class DatabaseHelper {
     return await db.query('costumes');
   }
 
-  // Fungsi untuk menghapus kostum berdasarkan ID
   Future<int> deleteCostume(int id) async {
     final db = await database;
     return await db.delete(
       'costumes',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Function to update a costume by ID
+  Future<int> updateCostume(int id, Map<String, dynamic> updatedData) async {
+    final db = await database;
+    return await db.update(
+      'costumes',
+      updatedData,
       where: 'id = ?',
       whereArgs: [id],
     );

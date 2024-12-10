@@ -4,6 +4,10 @@ import 'package:wmp/db_helper.dart';
 import 'package:wmp/features/costume_detail/presentation/page/costume_detail_page.dart';
 
 class FeatureCostumeWidget extends StatefulWidget {
+  final String searchQuery;
+
+  const FeatureCostumeWidget({Key? key, required this.searchQuery}) : super(key: key);
+
   @override
   _FeatureCostumeWidgetState createState() => _FeatureCostumeWidgetState();
 }
@@ -19,8 +23,8 @@ class _FeatureCostumeWidgetState extends State<FeatureCostumeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>( 
-      future: _fetchCostumes(), // Fetch costumes from the database
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _fetchCostumes(), // Fetch all costumes from the database
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -35,6 +39,12 @@ class _FeatureCostumeWidgetState extends State<FeatureCostumeWidget> {
         }
 
         final costumes = snapshot.data!;
+        
+        // Filter costumes based on the search query
+        final filteredCostumes = costumes.where((costume) {
+          final name = costume['name'] as String;
+          return name.toLowerCase().contains(widget.searchQuery.toLowerCase());
+        }).toList();
 
         return SingleChildScrollView(
           child: Column(
@@ -44,7 +54,6 @@ class _FeatureCostumeWidgetState extends State<FeatureCostumeWidget> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
                       "Featured Costumes",
@@ -52,18 +61,6 @@ class _FeatureCostumeWidgetState extends State<FeatureCostumeWidget> {
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.blue,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Handle "View All" action here
-                      },
-                      child: const Text(
-                        "View All",
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 16,
-                        ),
                       ),
                     ),
                   ],
@@ -82,9 +79,9 @@ class _FeatureCostumeWidgetState extends State<FeatureCostumeWidget> {
                     crossAxisSpacing: 16,
                     childAspectRatio: 0.75, // Aspect ratio for the card
                   ),
-                  itemCount: costumes.length,
+                  itemCount: filteredCostumes.length,
                   itemBuilder: (context, index) {
-                    final costume = costumes[index];
+                    final costume = filteredCostumes[index];
                     return GestureDetector(
                       onTap: () {
                         // Navigate to costume_detail_page.dart with the costume ID
@@ -146,10 +143,9 @@ class _FeatureCostumeWidgetState extends State<FeatureCostumeWidget> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Rp${costume['price']?.toString() ?? '0'}',
+                                    'Rp. ${costume['price']?.toString() ?? '0'}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black,
                                       fontSize: 14,
                                     ),
                                   ),

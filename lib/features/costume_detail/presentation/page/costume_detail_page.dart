@@ -3,6 +3,7 @@ import 'package:wmp/features/costume_detail/presentation/widget/costume_detail_w
 import 'package:wmp/features/costume_detail/presentation/widget/costume_description_widget.dart';
 import 'package:wmp/features/costume_detail/presentation/widget/costume_image_widget.dart';
 import 'package:wmp/db_helper.dart';
+import 'package:wmp/features/edit_costume/presentation/page/edit_costume_page.dart';
 
 class CostumeDetailPage extends StatefulWidget {
   final int costumeId;
@@ -40,7 +41,7 @@ class _CostumeDetailPageState extends State<CostumeDetailPage> {
 
   Future<void> _deleteCostume() async {
     await _dbHelper.deleteCostume(widget.costumeId);
-    Navigator.pop(context); // Kembali ke halaman sebelumnya setelah menghapus
+    Navigator.pop(context); // Go back after deleting
   }
 
   void _confirmDelete() {
@@ -48,26 +49,40 @@ class _CostumeDetailPageState extends State<CostumeDetailPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Konfirmasi Hapus'),
-          content: const Text('Apakah Anda yakin ingin menghapus kostum ini?'),
+          title: const Text('Delete Confirmation'),
+          content: const Text('Are you sure to delete this costume?'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop(); // Close dialog
               },
-              child: const Text('Batal'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 _deleteCostume();
-                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop(); // Close dialog
               },
-              child: const Text('Hapus'),
+              child: const Text('Delete'),
             ),
           ],
         );
       },
     );
+  }
+
+  void _navigateToEditPage() async {
+    final updated = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditCostumePage(costumeId: widget.costumeId),
+      ),
+    );
+
+    // If the costume was updated, reload details
+    if (updated == true) {
+      _loadCostumeDetails();
+    }
   }
 
   @override
@@ -82,16 +97,17 @@ class _CostumeDetailPageState extends State<CostumeDetailPage> {
 
     final costume = _costume!;
 
-    // Debugging: print the image URL
-    print('Image URL: ${costume['imagePath']}');
-
     return Scaffold(
       appBar: AppBar(
         title: Text(costume['name']),
         actions: [
           IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: _navigateToEditPage, // Navigate to Edit Page
+          ),
+          IconButton(
             icon: const Icon(Icons.delete),
-            onPressed: _confirmDelete, // Panggil konfirmasi hapus
+            onPressed: _confirmDelete, // Confirm delete
           ),
         ],
       ),

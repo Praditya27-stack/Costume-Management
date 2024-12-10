@@ -7,13 +7,18 @@ class CostumeDescriptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check the current theme (dark or light) and set the color accordingly
+    Color textColor = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white // White color for dark theme
+        : Colors.black54; // Default color for light theme
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Text(
         description,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
-          color: Colors.black54,
+          color: textColor,
         ),
         textAlign: TextAlign.justify,
       ),
